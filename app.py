@@ -1,6 +1,7 @@
-from multiprocessing import Process
+import os
 from threading import Thread
 from flask import Flask, request
+from flask_httpauth import HTTPTokenAuth
 from dotenv import load_dotenv
 from academic_paper import to_academic_paper
 from notes import to_notes
@@ -9,9 +10,15 @@ from tokens import manage_gpt_4_token_balance
 load_dotenv()
 
 app = Flask(__name__)
+auth = HTTPTokenAuth(scheme='Bearer')
 
-
+@auth.verify_token
+def verify_token(token):
+    if token == os.getenv("API_TOKEN"):
+        return True
+    
 @app.route("/academic_papers/to_notes", methods=["POST"])
+@auth.login_required
 def upload():
     if "file" not in request.files:
         return "No file uploaded", 400

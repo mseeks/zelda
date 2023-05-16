@@ -13,6 +13,7 @@ nltk = "^3.8.1"
 flask = "^2.3.2"
 boto3 = "^1.26.134"
 python-dotenv = "^1.0.0"
+flask-httpauth = "^4.8.0"
 
 
 [tool.poetry.group.dev.dependencies]
