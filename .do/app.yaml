@@ -9,3 +9,6 @@ services:
   internal_ports:
   - 5555
   build_command: poetry install
+  envs:
+  - key: OPENAI_API_KEY
+    scope: RUN_TIME
