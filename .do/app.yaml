@@ -7,10 +7,5 @@ services:
     deploy_on_push: true
     repo: mseeks/zelda
   name: zelda
-  build_command: poetry install
-  envs:
-  - key: OPENAI_API_KEY
-    scope: RUN_TIME
-    type: SECRET
   routes:
   - path: /
