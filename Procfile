@@ -1,1 +1,1 @@
-web: poetry run flask run
+web: poetry run flask run --port 5555
