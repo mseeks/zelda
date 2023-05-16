@@ -7,7 +7,6 @@ services:
     deploy_on_push: true
     repo: mseeks/zelda
   name: zelda
-  http_port: 5555
   build_command: poetry install
   envs:
   - key: OPENAI_API_KEY
