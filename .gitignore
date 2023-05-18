@@ -25,3 +25,6 @@ __pycache__/
 # Ignore editor-specific files
 *.swp
 *~
+
+# Ignore macOS directory attributes
+.DS_Store
