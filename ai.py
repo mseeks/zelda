@@ -1,25 +1,36 @@
 import os
 import openai
 
-from domain import ChatMessage, ChatModel
+from domain import ChatMessages, ChatModel, Temperature
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
+class NoChoicesException(Exception):
+    pass
 
-def to_chat_completion(
-    model: ChatModel, messages: list[ChatMessage], temperature: float = 0.5
-) -> str:
-    completion = openai.ChatCompletion.create(
-        model=model,
-        temperature=temperature,
-        messages=messages,
-    )
+class EmptyChoicesException(Exception):
+    pass
 
+def extract_message_content(completion: dict) -> str:
     if "choices" not in completion:
-        return ""
+        raise NoChoicesException("No choices in completion.")
 
     choices = completion["choices"]
+
     if len(choices) == 0:
-        return ""
+        raise EmptyChoicesException("Choices are empty.")
 
     return choices[0]["message"]["content"]
+
+def to_chat_completion(
+    model: ChatModel, messages: ChatMessages, temperature: Temperature = Temperature(1.0)
+) -> str:
+    print("Temperature: ", temperature.value)
+    completion = openai.ChatCompletion.create(
+        model=model,
+        temperature=temperature.value,
+        messages=messages,
+    )
+    print("Completion: ", completion)
+
+    return extract_message_content(completion) # type: ignore

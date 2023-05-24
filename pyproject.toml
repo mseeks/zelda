@@ -8,7 +8,6 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
-pdfminer-six = "^20221105"
 nltk = "^3.8.1"
 flask = "^2.3.2"
 boto3 = "^1.26.134"
@@ -16,6 +15,7 @@ python-dotenv = "^1.0.0"
 flask-httpauth = "^4.8.0"
 gunicorn = "^20.1.0"
 openai = "^0.27.6"
+pdfminer-six = "^20221105"
 
 
 [tool.poetry.group.dev.dependencies]

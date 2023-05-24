@@ -1,22 +1,19 @@
-from typing import Optional
-
-from domain import AcademicPaper
 from werkzeug.datastructures import FileStorage
+from domain import AcademicPaper
 
-from pdf import to_pdf
+from pdf import to_pdf, NoFilenameException, InvalidExtensionException
 
+class ConversionFailedException(Exception):
+    pass
 
-def to_academic_paper(file: FileStorage) -> Optional[AcademicPaper]:
-    pdf = to_pdf(file)
-
-    if pdf is None:
-        return None
+def to_academic_paper(file: FileStorage) -> AcademicPaper:
+    try:
+        pdf = to_pdf(file)
+    except (NoFilenameException, InvalidExtensionException) as e:
+        raise ConversionFailedException("Conversion to academic paper failed.") from e
 
     return AcademicPaper(
-        stream=pdf.stream,
-        filename=pdf.filename,
+        file=pdf.file,
         name=pdf.name,
-        content_type=pdf.content_type,
-        content_length=pdf.content_length,
-        headers=pdf.headers,
+        delete=False,
     )

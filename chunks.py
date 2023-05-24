@@ -1,5 +1,5 @@
 from functools import reduce
-from typing import Union, overload
+from typing import Union
 from characters import to_character_count
 
 from domain import (
@@ -21,23 +21,22 @@ def split_sentence(sentence: Sentence, chunk_length: CharacterCount) -> list[str
     ]
 
 
-@overload
-def to_chunks(
-    content: AcademicPaper, chunk_length: Union[CharacterCount, TokenCount]
-) -> Chunks:
-    ...
+def sentences_to_chunks(sentences: Sentences, chunk_length: CharacterCount) -> Chunks:
+    def reducer(acc, sentence):
+        if len(sentence) > chunk_length:
+            split_sentences = split_sentence(sentence, chunk_length)
+            acc[-1] += " " + split_sentences[0]
+            acc.extend(split_sentences[1:])
+        elif len(acc[-1]) + len(sentence) > chunk_length:
+            acc.append(sentence)
+        else:
+            acc[-1] += " " + sentence
+        return acc
 
+    chunk_strs = reduce(reducer, sentences, [""])
+    chunks = [Chunk(chunk_str) for chunk_str in chunk_strs if chunk_str.strip()]
 
-@overload
-def to_chunks(content: PDF, chunk_length: Union[CharacterCount, TokenCount]) -> Chunks:
-    ...
-
-
-@overload
-def to_chunks(
-    content: Sentences, chunk_length: Union[CharacterCount, TokenCount]
-) -> Chunks:
-    ...
+    return Chunks(chunks)
 
 
 def to_chunks(
@@ -50,21 +49,6 @@ def to_chunks(
     elif isinstance(content, Sentences):
         if isinstance(chunk_length, TokenCount):
             chunk_length = to_character_count(chunk_length)
-
-        def reducer(acc, sentence):
-            if len(sentence) > chunk_length:
-                split_sentences = split_sentence(sentence, chunk_length)
-                acc[-1] += " " + split_sentences[0]
-                acc.extend(split_sentences[1:])
-            elif len(acc[-1]) + len(sentence) > chunk_length:
-                acc.append(sentence)
-            else:
-                acc[-1] += " " + sentence
-            return acc
-
-        chunk_strs = reduce(reducer, content, [""])
-        chunks = [Chunk(chunk_str) for chunk_str in chunk_strs if chunk_str.strip()]
-
-        return Chunks(chunks)
+        return sentences_to_chunks(content, chunk_length)
     else:
         raise ValueError(f"Unsupported type: {type(content)}")
