@@ -1,6 +1,6 @@
 import os
 from threading import Thread
-import uuid
+from uuid import uuid4
 from flask import Flask, request
 from flask_httpauth import HTTPTokenAuth
 from dotenv import load_dotenv
@@ -32,32 +32,31 @@ def async_to_notes(paper, uuid):
 def verify_token(token):
     return token == os.getenv("API_TOKEN")
 
-@app.route("/academic_papers/to_notes", methods=["POST"])
+@app.route("/academic_papers/to_notes", methods=["POST", "GET"])
 @auth.login_required
-def upload():
-    file = request.files.get("file")
-    if not file:
-        return "No file selected", 400
-    
-    id = str(uuid.uuid4())
-    
-    paper = to_academic_paper(file)
-    process_thread = Thread(target=async_to_notes, args=(paper, id), daemon=True)
-    process_thread.start()
-    
-    return {"id": id}, 200
+def academic_paper_to_notes():
+    if request.method == 'POST':
+        file = request.files.get("file")
+        if not file:
+            return "No file selected", 400
+        
+        id = str(uuid4())
+        
+        paper = to_academic_paper(file)
+        process_thread = Thread(target=async_to_notes, args=(paper, id), daemon=True)
+        process_thread.start()
+        
+        return {"id": id}, 200
+    else:
+        uuid = request.args.get("id")
+        if not uuid:
+            return "No ID provided", 400
+        if uuid not in processed_academic_papers:
+            return "No such file processed", 404
+        
+        notes = processed_academic_papers.pop(uuid)
+        return notes, 200
 
-@app.route("/academic_papers/to_notes", methods=["GET"])
-@auth.login_required
-def retrieve():
-    uuid = request.args.get("id")
-    if not uuid:
-        return "No ID provided", 400
-    if uuid not in processed_academic_papers:
-        return "No such file processed", 404
-    
-    notes = processed_academic_papers.pop(uuid)
-    return notes, 200
 
 token_manager_thread = Thread(target=manage_gpt_4_token_balance, daemon=True)
 token_manager_thread.start()
