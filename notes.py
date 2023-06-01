@@ -59,7 +59,7 @@ def process_chunk(index: int, chunk: Chunk, prompt: ChatPrompt, result_queue: Qu
     )
 
     print("Sending to GPT-4: ", messages)
-    note_list = to_chat_completion(CHAT_MODEL, messages, Temperature(0.25)).split("\n")
+    note_list = to_chat_completion(CHAT_MODEL, messages, Temperature(0.5)).split("\n")
     print("Note List: ", note_list)
     notes = Notes([Note(note.strip()) for note in note_list if note])
     result_queue.put((index, notes))
