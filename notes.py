@@ -28,7 +28,7 @@ from domain import (
 import tokens
 
 MAX_WORKERS = 10
-TOKEN_COUNT = TokenCount(2000)
+TOKEN_COUNT = TokenCount(4000)
 CHAT_MODEL = ChatModel.GPT_4
 
 
